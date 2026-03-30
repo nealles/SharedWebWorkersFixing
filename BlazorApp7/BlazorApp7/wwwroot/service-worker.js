@@ -1,37 +1,37 @@
 
-console.log('[SW] Script 2 loaded');
+//console.log('[SW] Script 2 loaded');
 
 self.addEventListener('install', function (event) {
-    console.log('[SW] Install event');
+    //console.log('[SW] Install event');
     self.skipWaiting();
 });
 
 self.addEventListener('activate', function (event) {
-    console.log('[SW] Activate event');
+    //console.log('[SW] Activate event');
     event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', function (event) {
     const url = new URL(event.request.url);
 
-    console.log('[SW] Fetch:', url.pathname);
+    //console.log('[SW] Fetch:', url.pathname);
 
     // Skip debug, hot-reload and source maps
     if (url.pathname.includes('_framework/debug') ||
         url.pathname.includes('_framework/blazor-hotreload') ||
         url.pathname.endsWith('.map')) {
-        console.log('[SW] Skip:', url.pathname);
+        //console.log('[SW] Skip:', url.pathname);
         return;
     }
 
     // Handle navigation and framework requests
     if (event.request.mode === 'navigate' || url.pathname.includes('_framework/')) {
-        console.log('[SW] Intercepting:', url.pathname);
+        //console.log('[SW] Intercepting:', url.pathname);
 
         event.respondWith(
             fetch(event.request)
                 .then(function (response) {
-                    console.log('[SW] Response status:', response.status);
+                    //console.log('[SW] Response status:', response.status);
 
                     // Clone response to avoid consuming it
                     const responseClone = response.clone();
@@ -50,7 +50,7 @@ self.addEventListener('fetch', function (event) {
                     newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
                     newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
-                    console.log('[SW] Headers added for:', url.pathname);
+                    //console.log('[SW] Headers added for:', url.pathname);
 
                     // Return modified response
                     return new Response(response.body, {
@@ -67,7 +67,7 @@ self.addEventListener('fetch', function (event) {
         );
     } else {
         // Don't intercept other requests
-        console.log('[SW] Passthrough:', url.pathname);
+        //console.log('[SW] Passthrough:', url.pathname);
         return;
     }
 });
