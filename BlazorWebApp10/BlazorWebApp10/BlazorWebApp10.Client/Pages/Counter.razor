@@ -1,7 +1,12 @@
 ﻿@page "/counter"
 @using BlazorWebApp10.Services
+@using SpawnDev.BlazorJS
 @using SpawnDev.BlazorJS.WebWorkers
+@implements IDisposable
+
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+
 
 <PageTitle>SharedWebWorkerExample</PageTitle>
 
@@ -17,11 +22,14 @@
     WebWorkerService WebWorkerService { get; set; } = default!;
 
     private string status = "";
+    private ActionCallback<string[]>? actionCallback;
 
     private async Task Run()
     {
+        actionCallback?.Dispose();
+        actionCallback = new ActionCallback<string[]>(Callback);
         var sharedWorker = await WebWorkerService.GetSharedWebWorker("Get2");
-        await sharedWorker!.Run<ITestService>(s => s.Method1("Hello from main thread", Callback));
+        await sharedWorker!.Run<ITestService>(s => s.Method1("Hello from main thread", actionCallback));
         //var testService = sharedWorker!.GetService<ITestService>();
         // await testService.Method1("Hello from main thread", Callback);
 
@@ -31,6 +39,11 @@
     {
         status = message[0];
         Console.WriteLine(status);
-        StateHasChanged();
+        //StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        actionCallback?.Dispose();
     }
 }

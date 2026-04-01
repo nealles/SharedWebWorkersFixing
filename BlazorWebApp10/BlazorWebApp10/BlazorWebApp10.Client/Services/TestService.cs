@@ -1,33 +1,34 @@
-﻿using System.Runtime.CompilerServices;
+﻿using SpawnDev.BlazorJS;
+using System.Runtime.CompilerServices;
 
 namespace BlazorWebApp10.Services
 {
     public interface ITestService
     {
-        Task Method1(string msg, Action<string[]> callback);
-        Task Method2(string msg, Action<string[]> callback);
+        Task Method1(string msg, ActionCallback<string[]> callback);
+        Task Method2(string msg, ActionCallback<string[]> callback);
     }
 
     public class TestService : ITestService
     {
         private PeriodicTimer? _timer;
-        public async Task Method1(string msg, Action<string[]> callback)
+        public async Task Method1(string msg, ActionCallback<string[]> callback)
         {
 
             Console.WriteLine($"Method1 called with message: {msg}");
-            callback(["it works directly from Method1 but does not work from timer"]);
+            callback.Invoke(["it works directly from Method1 but does not work from timer"]);
             _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
             var task = Method2(msg, callback);
         }
 
-        public async Task Method2(string msg, Action<string[]> callback)
+        public async Task Method2(string msg, ActionCallback<string[]> callback)
         {
             var i = 0;
             while (await _timer!.WaitForNextTickAsync().ConfigureAwait(false))
             {
                 var message = $"\nHello{i++} from shared worker {DateTime.Now}";
                 Console.WriteLine(message);
-                callback([message]);
+                callback.Invoke([message]);
             }
         }
     }
